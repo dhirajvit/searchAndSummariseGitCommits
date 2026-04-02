@@ -59,18 +59,6 @@ export default function Home() {
     setRepo("");
   };
 
-  const [apiKey, setApiKey] = useState<string>(() => {
-    if (typeof window !== "undefined") {
-      return localStorage.getItem("api_key") || "";
-    }
-    return "";
-  });
-
-  const handleApiKeyChange = (value: string) => {
-    setApiKey(value);
-    localStorage.setItem("api_key", value);
-  };
-
   const [repo, setRepo] = useState("");
   
   const [commits, setCommits] = useState<
@@ -103,7 +91,7 @@ export default function Home() {
     try {
       const res = await fetch("/api/github/summarize", {
         method: "POST",
-        headers: { "Content-Type": "application/json", "x-api-key": apiKey },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           message: commit.message,
           author: commit.author,
@@ -154,16 +142,6 @@ export default function Home() {
       <div className="p-8">
         {token && (
           <>
-            <div className="flex items-center gap-4 mb-4">
-              <label className="text-sm font-medium">x_api_key for summarizer:</label>
-              <input
-                type="password"
-                value={apiKey}
-                onChange={(e) => handleApiKeyChange(e.target.value)}
-                placeholder="Enter API key"
-                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg"
-              />
-            </div>
             <div className="flex items-center gap-4">
               <input
                 type="text"
