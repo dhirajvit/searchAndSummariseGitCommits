@@ -8,7 +8,6 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 os.environ["GITHUB_CLIENT_ID"] = "test-client-id"
 os.environ["GITHUB_CLIENT_SECRET"] = "test-client-secret"
-os.environ["X_API_KEY"] = "test-api-key"
 os.environ["OPENAI_API_KEY"] = "test-openai-key"
 
 from fastapi.testclient import TestClient
@@ -121,22 +120,12 @@ class TestSummarize:
                 "date": "2026-01-01",
                 "files": ["auth.py"],
             },
-            headers={"x-api-key": "test-api-key"},
+            headers={"x-openai-token": "sk-test-key"},
         )
 
         assert response.status_code == 200
         assert response.json() == {"summary": "Fixed a bug in the auth module."}
 
-    @patch("index.summarize")
-    def test_invalid_api_key(self, mock_summarize):
-        response = client.post(
-            "/api/github/summarize",
-            json={"message": "fix bug", "author": "dev", "date": "2026-01-01", "files": []},
-            headers={"x-api-key": "wrong-key"},
-        )
-
-        assert response.status_code == 401
-        mock_summarize.assert_not_called()
 
 
 class TestBuildPrompt:

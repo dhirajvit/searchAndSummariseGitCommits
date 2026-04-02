@@ -1,0 +1,1 @@
+ /ralph-loop:ralph-loop "Read the system prompt from features/add_openai_based_authentication/context.py by calling get_system_prompt(), then follow its instructions to generate the code changes. Output <promise>TASK COMPLETE<promise> when done." --max-iterations 5 --completion-promise "TASK COMPLETE"

@@ -1,0 +1,19 @@
+{
+  "feature": {
+    "name": "Replace API Key",
+    "task": "removeApiKey",
+    "description": "API key was added as an adhoc measure to put additional security for LLM call. It needs to be replaced in two steps. This feature is for step 1.",
+    "goal": "User should be able to summarise without OpenAI key."
+  },
+  "requirements": [
+    "Remove API requirement from backend",
+    "Remove API key usage from frontend"
+  ],
+  "apiContract": {
+    "method": "POST",
+    "endpoint": "/api/github/summarize"
+  },
+  "acceptanceCriteria": [
+    "API /api/github/summarize should go through OpenAI without user feeding it in request."
+  ]
+}

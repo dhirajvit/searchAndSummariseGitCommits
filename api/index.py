@@ -20,13 +20,6 @@ app = FastAPI()
 
 GITHUB_CLIENT_ID = os.environ.get("GITHUB_CLIENT_ID", "")
 GITHUB_CLIENT_SECRET = os.environ.get("GITHUB_CLIENT_SECRET", "")
-X_API_KEY = os.environ.get("X_API_KEY", "")
-
-
-def verify_api_key(x_api_key: str = Header()):
-    if x_api_key != X_API_KEY:
-        logger.warning("Invalid API key attempt")
-        raise HTTPException(status_code=401, detail="Invalid API key")
 
 @app.get("/api/health")
 def health():
@@ -98,14 +91,14 @@ def get_commits(repo: str, authorization: str = Header()):
 
 
 @app.post("/api/github/summarize")
-def summarize_commit(body: dict, x_api_key: str = Header()):
-    verify_api_key(x_api_key)
+def summarize_commit(body: dict, x_openai_token: str = Header()):
     logger.info("Summarizing commit: %s", body.get("message", "")[:50])
     result = summarize(
         message=body.get("message", ""),
         author=body.get("author", ""),
         date=body.get("date", ""),
         files=body.get("files", []),
+        openai_api_key=x_openai_token,
     )
     logger.info("Summarization complete")
     return JSONResponse({"summary": result})

@@ -5,9 +5,9 @@ from summarizer.context import build_prompt, SYSTEM_PROMPT
 MODEL = os.environ.get("OPENAI_MODEL", "gpt-5-nano")
 
 
-def summarize(message: str, author: str, date: str, files: list[str]) -> str:
+def summarize(message: str, author: str, date: str, files: list[str], openai_api_key: str = "") -> str:
 
-    client = OpenAI()
+    client = OpenAI(api_key=openai_api_key)
     prompt = build_prompt(message, author, date, files)
     messages = [
         {"role": "system", "content": SYSTEM_PROMPT},

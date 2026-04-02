@@ -59,6 +59,26 @@ export default function Home() {
     setRepo("");
   };
 
+  const [openaiToken, setOpenaiToken] = useState<string | null>(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("openai_token");
+    }
+    return null;
+  });
+
+  const handleOpenaiLogin = () => {
+    const key = prompt("Enter your OpenAI API key:");
+    if (key) {
+      localStorage.setItem("openai_token", key);
+      setOpenaiToken(key);
+    }
+  };
+
+  const handleOpenaiLogout = () => {
+    localStorage.removeItem("openai_token");
+    setOpenaiToken(null);
+  };
+
   const [repo, setRepo] = useState("");
   
   const [commits, setCommits] = useState<
@@ -86,12 +106,12 @@ export default function Home() {
 
   const handleSummarize = async (sha: string) => {
     const commit = commits.find((c) => c.sha === sha);
-    if (!commit) return;
+    if (!commit || !openaiToken) return;
     setCommits((prev) => prev.map((c) => c.sha === sha ? { ...c, summary: "Summarizing..." } : c));
     try {
       const res = await fetch("/api/github/summarize", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "x-openai-token": openaiToken },
         body: JSON.stringify({
           message: commit.message,
           author: commit.author,
@@ -120,7 +140,24 @@ export default function Home() {
         <div className="w-32" />
         <h1 className="text-xl font-bold">GitHub Commit Search</h1>
         
-        <div className="w-32 flex justify-end">
+        <div className="flex items-center gap-2">
+          {token && (
+            openaiToken ? (
+              <button
+                onClick={handleOpenaiLogout}
+                className="px-4 py-2 text-sm border border-green-300 text-green-700 rounded-lg hover:bg-green-50 transition"
+              >
+                OpenAI Connected
+              </button>
+            ) : (
+              <button
+                onClick={handleOpenaiLogin}
+                className="px-4 py-2 text-sm border border-orange-300 text-orange-700 rounded-lg hover:bg-orange-50 transition"
+              >
+                Connect OpenAI
+              </button>
+            )
+          )}
           {!token ? (
             <button
               onClick={handleLogin}
@@ -190,7 +227,9 @@ export default function Home() {
                       {!c.summary ? (
                         <button
                           onClick={() => handleSummarize(c.sha)}
-                          className="mb-2 px-4 py-1 text-sm bg-gray-900 text-white rounded-lg hover:bg-gray-700 transition"
+                          disabled={!openaiToken}
+                          className="mb-2 px-4 py-1 text-sm bg-gray-900 text-white rounded-lg hover:bg-gray-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                          title={!openaiToken ? "Connect OpenAI first" : ""}
                         >
                           Summarize
                         </button>
